@@ -11,7 +11,6 @@ import net.ayld.facade.model.ClassName;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -48,7 +47,8 @@ public class MavenMinimizerMojo extends AbstractMojo {
 	 * The method would first attempt to configure the Facade's
 	 * {@link Minimizer} using the parameters that Maven has passed
 	 * </p>
-	 * see {@link AbstractMojo#execute()}
+	 * 
+	 * @see {@link AbstractMojo#execute()}
 	 */
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		getLog().info("Minimizing dependencies");
@@ -63,8 +63,7 @@ public class MavenMinimizerMojo extends AbstractMojo {
 				classNames.add(new ClassName(classToForceInclude));
 			}
 
-			minimizer.forceInclude(classNames.toArray(new ClassName[classNames
-					.size()]));
+			minimizer.forceInclude(classNames.toArray(new ClassName[classNames.size()]));
 		}
 
 		// set up custom target directory
@@ -75,14 +74,11 @@ public class MavenMinimizerMojo extends AbstractMojo {
 		// attempt to output the minimized dependency JAR file
 		try {
 			final JarFile jar = minimizer.getJar();
-			getLog().info(
-					"Minimized dependencies are located in " + jar.getName());
+			getLog().info("Minimized dependencies are located in " + jar.getName());
 		} catch (IOException e) {
 			getLog().error("Minimize not successful!", e);
-			throw new MojoFailureException(MavenMinimizerMojo.class,
-					"Unable to minimize dependencies",
-					"There was na IO error while outputing the minimized dependency jar : "
-							+ e.getMessage());
+			throw new MojoExecutionException(MavenMinimizerMojo.class, "Unable to minimize dependencies",
+					"There was na IO error while outputing the minimized dependency jar : " + e.getMessage());
 		}
 	}
 
