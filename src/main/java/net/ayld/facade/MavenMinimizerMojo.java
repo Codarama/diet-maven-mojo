@@ -27,10 +27,10 @@ import org.apache.maven.plugins.annotations.Parameter;
 @Mojo(name = "minimizer", defaultPhase = LifecyclePhase.PACKAGE)
 public class MavenMinimizerMojo extends AbstractMojo {
 
-	@Parameter(defaultValue = "${project.build.directory}", property = "sources", required = true)
+	@Parameter(defaultValue = "${project.build.sourceDirectory}", property = "sources", required = true)
 	private String sources;
 
-	@Parameter(defaultValue = "${project.build.directory}", property = "libs", required = true)
+	@Parameter(defaultValue = "${settings.localRepository}", property = "libs", required = true)
 	private String libs;
 
 	@Parameter(property = "forceInclude", required = false)
