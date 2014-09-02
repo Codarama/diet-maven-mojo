@@ -2,12 +2,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>net.ayld.facade</groupId>
-	<artifactId>facade-maven-plugin</artifactId>
+	<groupId>org.codarama.diet</groupId>
+	<artifactId>diet-maven-mojo</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>maven-plugin</packaging>
 
-	<name>Facade Maven Plugin</name>
+	<name>Diet Maven Mojo</name>
 
 	<url>https://github.com/amaranthius/facade-maven</url>
 
@@ -94,7 +94,7 @@
 				</executions>
 			</plugin>
 
-			<!-- [tishu] To actually run the plugin you should call "mvn net.ayld.facade:facade-maven-plugin:1.0-SNAPSHOT:minimizer" 
+			<!-- [tishu] To actually run the plugin you should call "mvn org.codarama.diet:diet-maven-mojo:1.0-SNAPSHOT:minimizer" 
 				Now we would probably not do this often (as it would try and minimize the 
 				plugin project itself) but I will use it for testing purposes for now -->
 			<plugin>

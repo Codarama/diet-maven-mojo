@@ -1,4 +1,4 @@
-package net.ayld.facade;
+package org.codarama.diet;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -16,6 +16,7 @@ import net.ayld.facade.model.ClassName;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
+import org.codarama.diet.MavenMinimizerMojo;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
