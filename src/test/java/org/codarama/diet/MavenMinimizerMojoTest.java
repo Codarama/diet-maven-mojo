@@ -10,13 +10,11 @@ import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 import java.io.IOException;
 import java.util.jar.JarFile;
 
-import net.ayld.facade.api.Minimizer;
-import net.ayld.facade.model.ClassName;
-
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
-import org.codarama.diet.MavenMinimizerMojo;
+import org.codarama.diet.api.Minimizer;
+import org.codarama.diet.model.ClassName;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
