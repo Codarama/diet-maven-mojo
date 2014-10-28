@@ -39,7 +39,7 @@
 		<dependency>
 			<groupId>org.codarama.diet</groupId>
 			<artifactId>diet-engine</artifactId>
-			<version>v0.6-alpha.1-SNAPSHOT</version>
+			<version>0.6.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
