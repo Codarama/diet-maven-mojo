@@ -6,11 +6,24 @@ The Diet Maven Mojo is a Maven Mojo that provides an easy to use interface to th
 # Usage
 
 ```xml
-<plugin>
-   <groupId>org.codarama.diet</groupId>
-   <artifactId>diet-maven-mojo</artifactId>
-   <version>1.0</version>
-</plugin>
+<build>
+	<plugins>
+		<plugin>
+			<groupId>org.codarama.diet</groupId>
+			<artifactId>diet-maven-mojo</artifactId>
+			<version>1.0.0</version>
+			<inherited>true</inherited>
+			<executions>
+				<execution>
+					<phase>package</phase>
+					<goals>
+						<goal>putondiet</goal>
+					</goals>
+				</execution>
+			</executions>
+		</plugin>
+	</plugins>
+</build>
 ```
 
 # Notes

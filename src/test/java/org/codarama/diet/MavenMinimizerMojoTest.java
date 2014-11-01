@@ -13,6 +13,7 @@ import java.util.jar.JarFile;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
+import org.codarama.diet.api.DietMinimizer;
 import org.codarama.diet.api.Minimizer;
 import org.codarama.diet.model.ClassName;
 import org.junit.Before;
@@ -57,7 +58,7 @@ public class MavenMinimizerMojoTest {
 		ArgumentCaptor<String> sources = ArgumentCaptor.forClass(String.class);
 		ArgumentCaptor<String> libs = ArgumentCaptor.forClass(String.class);
 
-		when(Minimizer.sources(sources.capture())).thenReturn(mockMinimizer);
+		when(DietMinimizer.sources(sources.capture())).thenReturn(mockMinimizer);
 		when(mockMinimizer.libs(libs.capture())).thenReturn(mockMinimizer);
 		when(mockMinimizer.getJar()).thenReturn(mock(JarFile.class));
 
@@ -86,7 +87,7 @@ public class MavenMinimizerMojoTest {
 		ArgumentCaptor<String> sources = ArgumentCaptor.forClass(String.class);
 		ArgumentCaptor<String> libs = ArgumentCaptor.forClass(String.class);
 
-		when(Minimizer.sources(sources.capture())).thenReturn(mockMinimizer);
+		when(DietMinimizer.sources(sources.capture())).thenReturn(mockMinimizer);
 		when(mockMinimizer.libs(libs.capture())).thenReturn(mockMinimizer);
 		when(mockMinimizer.getJar()).thenThrow(new IOException());
 
@@ -119,7 +120,7 @@ public class MavenMinimizerMojoTest {
 		ArgumentCaptor<String> target = ArgumentCaptor.forClass(String.class);
 		ArgumentCaptor<ClassName> forceInclude = ArgumentCaptor.forClass(ClassName.class);
 
-		when(Minimizer.sources(sources.capture())).thenReturn(mockMinimizer);
+		when(DietMinimizer.sources(sources.capture())).thenReturn(mockMinimizer);
 		when(mockMinimizer.libs(libs.capture())).thenReturn(mockMinimizer);
 		when(mockMinimizer.output(target.capture())).thenReturn(mockMinimizer);
 		when(mockMinimizer.forceInclude(forceInclude.capture())).thenReturn(mockMinimizer);
