@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.jar.JarFile;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
@@ -17,8 +16,10 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.codarama.diet.api.DietMinimizer;
+import org.codarama.diet.api.DefaultMinimizer;
 import org.codarama.diet.api.Minimizer;
+import org.codarama.diet.api.reporting.MinimizationReport;
+import org.codarama.diet.api.reporting.MinimizationStatistics;
 import org.codarama.diet.model.ClassName;
 
 /**
@@ -62,7 +63,7 @@ public class MavenMinimizerMojo extends AbstractMojo {
 			getLog().info("Minimizing dependencies");
 
 			// start by building up the minimizer using the path to the source files
-			Minimizer minimizer = DietMinimizer.sources(sources);
+			Minimizer minimizer = DefaultMinimizer.sources(sources);
 
 			// ... then attempt to build a path to the dependencies
 			minimizer = buildUpDependencies(minimizer);
@@ -71,8 +72,9 @@ public class MavenMinimizerMojo extends AbstractMojo {
 			minimizer.output(target);
 
 			// ... finally attempt to output the minimized dependency JAR file
-			final JarFile jar = minimizer.getJar();
-			getLog().info("Minimized dependencies are located in " + jar.getName());
+			final MinimizationReport report = minimizer.minimize();
+			// TODO inject newly minimized dependency here
+			logStatistics(report.getStatistics());
 		} catch (IOException e) {
 			getLog().error("Minimize not successful!", e);
 			throw new MojoExecutionException(MavenMinimizerMojo.class, "Unable to minimize dependencies",
@@ -83,6 +85,18 @@ public class MavenMinimizerMojo extends AbstractMojo {
 					"Configuration spooked me out : " + e.getMessage());
 
 		}
+	}
+
+	private void logStatistics(MinimizationStatistics statistics) {
+		getLog().info("=========================");
+		getLog().info("   Minimization Report");
+		getLog().info("=========================");
+		getLog().info("Total execution time : " + statistics.getTotalExecutionTime() + "ms");
+		getLog().info("Total source files : " + statistics.getSourceFilesCount());
+		getLog().info("Total dependencies before minimization : " + statistics.getTotalDependenciesCount());
+		getLog().info("Total dependencies after minimization : " + statistics.getMinimizedDependenciesCount());
+		double percentage = statistics.getMinimizedDependenciesCount() * 100 / statistics.getTotalDependenciesCount();
+		getLog().info("Minimized dependencies as part of the total depednencies : " + percentage + "%");
 	}
 
 	private Minimizer buildUpDependencies(Minimizer minimizer) throws IOException {
@@ -98,7 +112,7 @@ public class MavenMinimizerMojo extends AbstractMojo {
 		}
 
 		// set up Maven project dependencies
-		Set<Artifact> artifacts = project.getDependencyArtifacts();
+		Set<Artifact> artifacts = project.getDependencyArtifacts(); // FIXME are transitive dependencies included?
 		Set<File> artifactLocations = new HashSet<File>();
 		for (Artifact artifact : artifacts) {
 			// we want to exclude test or provided artifacts - the first because

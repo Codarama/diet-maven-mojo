@@ -8,13 +8,13 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 
 import java.io.IOException;
-import java.util.jar.JarFile;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
-import org.codarama.diet.api.DietMinimizer;
+import org.codarama.diet.api.DefaultMinimizer;
 import org.codarama.diet.api.Minimizer;
+import org.codarama.diet.api.reporting.MinimizationReport;
 import org.codarama.diet.model.ClassName;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,9 +58,9 @@ public class MavenMinimizerMojoTest {
 		ArgumentCaptor<String> sources = ArgumentCaptor.forClass(String.class);
 		ArgumentCaptor<String> libs = ArgumentCaptor.forClass(String.class);
 
-		when(DietMinimizer.sources(sources.capture())).thenReturn(mockMinimizer);
+		when(DefaultMinimizer.sources(sources.capture())).thenReturn(mockMinimizer);
 		when(mockMinimizer.libs(libs.capture())).thenReturn(mockMinimizer);
-		when(mockMinimizer.getJar()).thenReturn(mock(JarFile.class));
+		when(mockMinimizer.minimize()).thenReturn(mock(MinimizationReport.class));
 
 		// execute for great justice
 		mojo.execute();
@@ -87,9 +87,9 @@ public class MavenMinimizerMojoTest {
 		ArgumentCaptor<String> sources = ArgumentCaptor.forClass(String.class);
 		ArgumentCaptor<String> libs = ArgumentCaptor.forClass(String.class);
 
-		when(DietMinimizer.sources(sources.capture())).thenReturn(mockMinimizer);
+		when(DefaultMinimizer.sources(sources.capture())).thenReturn(mockMinimizer);
 		when(mockMinimizer.libs(libs.capture())).thenReturn(mockMinimizer);
-		when(mockMinimizer.getJar()).thenThrow(new IOException());
+		when(mockMinimizer.minimize()).thenThrow(new IOException());
 
 		// execute for great justice
 		mojo.execute();
@@ -120,11 +120,11 @@ public class MavenMinimizerMojoTest {
 		ArgumentCaptor<String> target = ArgumentCaptor.forClass(String.class);
 		ArgumentCaptor<ClassName> forceInclude = ArgumentCaptor.forClass(ClassName.class);
 
-		when(DietMinimizer.sources(sources.capture())).thenReturn(mockMinimizer);
+		when(DefaultMinimizer.sources(sources.capture())).thenReturn(mockMinimizer);
 		when(mockMinimizer.libs(libs.capture())).thenReturn(mockMinimizer);
 		when(mockMinimizer.output(target.capture())).thenReturn(mockMinimizer);
 		when(mockMinimizer.forceInclude(forceInclude.capture())).thenReturn(mockMinimizer);
-		when(mockMinimizer.getJar()).thenReturn(mock(JarFile.class));
+		when(mockMinimizer.minimize()).thenReturn(mock(MinimizationReport.class));
 
 		// execute for great justice
 		mojo.execute();
