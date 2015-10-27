@@ -1,13 +1,5 @@
 package org.codarama.diet;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -28,18 +20,23 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.codarama.diet.api.DefaultMinimizer;
+import org.codarama.diet.api.IndexedMinimizer;
 import org.codarama.diet.api.Minimizer;
 import org.codarama.diet.api.reporting.MinimizationReport;
 import org.codarama.diet.api.reporting.MinimizationStatistics;
 import org.codarama.diet.model.ClassName;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+
 /**
  * <p>
  * This implementation of the {@link AbstractMojo} can be used to minimize the dependencies of a Maven project.
  * </p>
- * 
- * @see https://diet.codarama.org
+ *
+ * Have a look at:
+ *   https://diet.codarama.org
  */
 @Mojo(name = "minimizer", defaultPhase = LifecyclePhase.PACKAGE)
 public class MavenMinimizerMojo extends AbstractMojo {
@@ -85,7 +82,7 @@ public class MavenMinimizerMojo extends AbstractMojo {
             getLog().info("Minimizing dependencies");
 
             // start by building up the minimizer using the path to the source files
-            Minimizer minimizer = DefaultMinimizer.sources(sources);
+            Minimizer minimizer = IndexedMinimizer.sources(sources);
 
             // ... then attempt to build a path to the dependencies
             minimizer = buildUpDependencies(minimizer);
@@ -149,7 +146,9 @@ public class MavenMinimizerMojo extends AbstractMojo {
         getLog().info("Total source files : " + statistics.getSourceFilesCount());
         getLog().info("Total dependencies before minimization : " + statistics.getTotalDependenciesCount());
         getLog().info("Total dependencies after minimization : " + statistics.getMinimizedDependenciesCount());
-        double percentage = statistics.getMinimizedDependenciesCount() * 100 / statistics.getTotalDependenciesCount();
+        double percentage =
+                statistics.getMinimizedDependenciesCount() * 100 /
+                        statistics.getTotalDependenciesCount() == 0 ? 1 : statistics.getTotalDependenciesCount();
         getLog().info("Minimized dependencies as part of the total depednencies : " + percentage + "%");
     }
 
@@ -208,8 +207,7 @@ public class MavenMinimizerMojo extends AbstractMojo {
             minimizer.forceInclude(classNames.toArray(new ClassName[classNames.size()]));
         }
 
-        Set<File> artifactLocations = new HashSet<File>();
-        artifactLocations = askMavenForDependencies();
+        Set<File> artifactLocations = askMavenForDependencies();
 
         // if inspecting the Maven project resulted in an empty list then we
         // fallback to the Maven project local repository (could be very costly
