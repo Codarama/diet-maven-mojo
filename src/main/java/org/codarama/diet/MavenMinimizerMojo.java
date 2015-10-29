@@ -28,6 +28,7 @@ import org.codarama.diet.model.ClassName;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.*;
 
 /**
@@ -146,9 +147,12 @@ public class MavenMinimizerMojo extends AbstractMojo {
         getLog().info("Total source files : " + statistics.getSourceFilesCount());
         getLog().info("Total dependencies before minimization : " + statistics.getTotalDependenciesCount());
         getLog().info("Total dependencies after minimization : " + statistics.getMinimizedDependenciesCount());
-        double percentage =
-                statistics.getMinimizedDependenciesCount() * 100 /
-                        statistics.getTotalDependenciesCount() == 0 ? 1 : statistics.getTotalDependenciesCount();
+
+        final double totalDeps = statistics.getTotalDependenciesCount() == 0 ? 1d : statistics.getTotalDependenciesCount();
+        final double depsAfterMinimization = statistics.getMinimizedDependenciesCount();
+
+        final double percentage = (totalDeps - depsAfterMinimization) / totalDeps * 100d;
+
         getLog().info("Minimized dependencies as part of the total depednencies : " + percentage + "%");
     }
 
