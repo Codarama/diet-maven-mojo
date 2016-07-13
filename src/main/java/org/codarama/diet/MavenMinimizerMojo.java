@@ -1,13 +1,5 @@
 package org.codarama.diet;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -28,11 +20,18 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.codarama.diet.api.DefaultMinimizer;
+import org.codarama.diet.api.IndexedMinimizer;
+import org.codarama.diet.api.ListenerRegistrar;
 import org.codarama.diet.api.Minimizer;
 import org.codarama.diet.api.reporting.MinimizationReport;
 import org.codarama.diet.api.reporting.MinimizationStatistics;
+import org.codarama.diet.api.reporting.listener.EventListener;
+import org.codarama.diet.event.model.ComponentEvent;
 import org.codarama.diet.model.ClassName;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * <p>
@@ -85,7 +84,7 @@ public class MavenMinimizerMojo extends AbstractMojo {
             getLog().info("Minimizing dependencies");
 
             // start by building up the minimizer using the path to the source files
-            Minimizer minimizer = DefaultMinimizer.sources(sources);
+            Minimizer minimizer = IndexedMinimizer.sources(sources);
 
             // ... then attempt to build a path to the dependencies
             minimizer = buildUpDependencies(minimizer);
@@ -93,10 +92,15 @@ public class MavenMinimizerMojo extends AbstractMojo {
             // ... then set up the target directory
             minimizer.output(target);
 
+            attachProgressListeners();
+
             // ... finally attempt to output the minimized dependency JAR file
             final MinimizationReport report = minimizer.minimize();
+
             // TODO inject newly minimized dependency here
             logStatistics(report.getStatistics());
+
+            getLog().info("The minimized jar is at: " + report.getJar().getName());
         } catch (IOException e) {
             getLog().error("Minimize not successful!", e);
             throw new MojoExecutionException(MavenMinimizerMojo.class, "Unable to minimize dependencies",
@@ -107,6 +111,14 @@ public class MavenMinimizerMojo extends AbstractMojo {
                     "Configuration spooked me out : " + e.getMessage());
 
         }
+    }
+
+    private void attachProgressListeners() {
+        ListenerRegistrar.register(new EventListener<ComponentEvent>() {
+            public void on(ComponentEvent event) {
+                getLog().debug(event.toString());
+            }
+        });
     }
 
     private void initizlizeLogger() {
@@ -145,7 +157,7 @@ public class MavenMinimizerMojo extends AbstractMojo {
         getLog().info("=========================");
         getLog().info("   Minimization Report");
         getLog().info("=========================");
-        getLog().info("Total execution time : " + statistics.getTotalExecutionTime() + "ms");
+        getLog().info("Total execution time : " + statistics.getFormattedExecutionTime());
         getLog().info("Total source files : " + statistics.getSourceFilesCount());
         getLog().info("Total dependencies before minimization : " + statistics.getTotalDependenciesCount());
         getLog().info("Total dependencies after minimization : " + statistics.getMinimizedDependenciesCount());

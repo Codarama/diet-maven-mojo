@@ -1,28 +1,26 @@
 package org.codarama.diet;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.verifyStatic;
-
-import java.io.IOException;
-
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.codarama.diet.api.DefaultMinimizer;
+import org.codarama.diet.api.IndexedMinimizer;
 import org.codarama.diet.api.Minimizer;
 import org.codarama.diet.api.reporting.MinimizationReport;
 import org.codarama.diet.model.ClassName;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 
 /**
  * <p>
@@ -58,7 +56,7 @@ public class MavenMinimizerMojoTest {
 		ArgumentCaptor<String> sources = ArgumentCaptor.forClass(String.class);
 		ArgumentCaptor<String> libs = ArgumentCaptor.forClass(String.class);
 
-		when(DefaultMinimizer.sources(sources.capture())).thenReturn(mockMinimizer);
+		when(IndexedMinimizer.sources(sources.capture())).thenReturn(mockMinimizer);
 		when(mockMinimizer.libs(libs.capture())).thenReturn(mockMinimizer);
 		when(mockMinimizer.minimize()).thenReturn(mock(MinimizationReport.class));
 
@@ -87,7 +85,7 @@ public class MavenMinimizerMojoTest {
 		ArgumentCaptor<String> sources = ArgumentCaptor.forClass(String.class);
 		ArgumentCaptor<String> libs = ArgumentCaptor.forClass(String.class);
 
-		when(DefaultMinimizer.sources(sources.capture())).thenReturn(mockMinimizer);
+		when(IndexedMinimizer.sources(sources.capture())).thenReturn(mockMinimizer);
 		when(mockMinimizer.libs(libs.capture())).thenReturn(mockMinimizer);
 		when(mockMinimizer.minimize()).thenThrow(new IOException());
 
@@ -120,7 +118,7 @@ public class MavenMinimizerMojoTest {
 		ArgumentCaptor<String> target = ArgumentCaptor.forClass(String.class);
 		ArgumentCaptor<ClassName> forceInclude = ArgumentCaptor.forClass(ClassName.class);
 
-		when(DefaultMinimizer.sources(sources.capture())).thenReturn(mockMinimizer);
+		when(IndexedMinimizer.sources(sources.capture())).thenReturn(mockMinimizer);
 		when(mockMinimizer.libs(libs.capture())).thenReturn(mockMinimizer);
 		when(mockMinimizer.output(target.capture())).thenReturn(mockMinimizer);
 		when(mockMinimizer.forceInclude(forceInclude.capture())).thenReturn(mockMinimizer);
