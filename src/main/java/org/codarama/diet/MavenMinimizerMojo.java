@@ -38,7 +38,7 @@ import java.util.*;
  * This implementation of the {@link AbstractMojo} can be used to minimize the dependencies of a Maven project.
  * </p>
  * 
- * @see https://diet.codarama.org
+ * @see {@linkplain} https://diet.codarama.org
  */
 @Mojo(name = "minimizer", defaultPhase = LifecyclePhase.PACKAGE)
 public class MavenMinimizerMojo extends AbstractMojo {
@@ -107,8 +107,8 @@ public class MavenMinimizerMojo extends AbstractMojo {
                     "An IO error spooked me out : " + e.getMessage());
         } catch (IllegalArgumentException e) {
             getLog().error("Minimize not successful!", e);
-            throw new MojoExecutionException(MavenMinimizerMojo.class, "Unable to minimize dependencies",
-                    "Configuration spooked me out : " + e.getMessage());
+            throw new MojoExecutionException("Unable to minimize dependencies, configuration spooked me out : "
+                    + e.getMessage(), e);
 
         }
     }
@@ -220,8 +220,7 @@ public class MavenMinimizerMojo extends AbstractMojo {
             minimizer.forceInclude(classNames.toArray(new ClassName[classNames.size()]));
         }
 
-        Set<File> artifactLocations = new HashSet<File>();
-        artifactLocations = askMavenForDependencies();
+        final Set<File> artifactLocations = askMavenForDependencies();
 
         // if inspecting the Maven project resulted in an empty list then we
         // fallback to the Maven project local repository (could be very costly
