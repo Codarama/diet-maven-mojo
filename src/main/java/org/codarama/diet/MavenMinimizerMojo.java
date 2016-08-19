@@ -1,5 +1,13 @@
 package org.codarama.diet;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -20,6 +28,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.MavenProjectHelper;
 import org.codarama.diet.api.IndexedMinimizer;
 import org.codarama.diet.api.ListenerRegistrar;
 import org.codarama.diet.api.Minimizer;
@@ -29,18 +38,12 @@ import org.codarama.diet.api.reporting.listener.EventListener;
 import org.codarama.diet.event.model.ComponentEvent;
 import org.codarama.diet.model.ClassName;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-
 /**
  * <p>
  * This implementation of the {@link AbstractMojo} can be used to minimize the dependencies of a Maven project.
  * </p>
- * 
- * @see {@linkplain} https://diet.codarama.org
  */
-@Mojo(name = "minimizer", defaultPhase = LifecyclePhase.PACKAGE)
+@Mojo(name = "putondiet", defaultPhase = LifecyclePhase.PACKAGE)
 public class MavenMinimizerMojo extends AbstractMojo {
 
     private static final String LOG_PATTERN = "%d [%p|%c|%C{1}] %m%n";
@@ -67,6 +70,9 @@ public class MavenMinimizerMojo extends AbstractMojo {
     @Component
     private ProjectDependenciesResolver projectDependenciesResolver;
 
+	@Component
+	private MavenProjectHelper projectHelper;
+
     /**
      * <p>
      * Calls the Facade library in order to minimize the project's dependencies
@@ -75,7 +81,7 @@ public class MavenMinimizerMojo extends AbstractMojo {
      * The method would first attempt to configure the Diet's {@link Minimizer}
      * </p>
      * 
-     * @see {@link AbstractMojo#execute()}
+     * @see AbstractMojo#execute()
      */
     public void execute() throws MojoExecutionException, MojoFailureException {
         initizlizeLogger();
@@ -94,10 +100,13 @@ public class MavenMinimizerMojo extends AbstractMojo {
 
             attachProgressListeners();
 
-            // ... finally attempt to output the minimized dependency JAR file
+            // ... then attempt to output the minimized dependency JAR file
             final MinimizationReport report = minimizer.minimize();
 
-            // TODO inject newly minimized dependency here
+            // ... finally inject the newly minimized dependency in the package
+			final File minimizedJar = new File(report.getJar().getName());
+			projectHelper.attachArtifact(project, "jar", "slimjar", minimizedJar);
+
             logStatistics(report.getStatistics());
 
             getLog().info("The minimized jar is at: " + report.getJar().getName());
