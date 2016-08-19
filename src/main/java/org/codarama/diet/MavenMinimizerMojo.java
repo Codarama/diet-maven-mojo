@@ -104,8 +104,9 @@ public class MavenMinimizerMojo extends AbstractMojo {
             final MinimizationReport report = minimizer.minimize();
 
             // ... finally inject the newly minimized dependency in the package
-			final File minimizedJar = new File(report.getJar().getName());
-			projectHelper.attachArtifact(project, "jar", "slimjar", minimizedJar);
+            // DISABLED for this release
+            // final File minimizedJar = new File(report.getJar().getName());
+            // projectHelper.attachArtifact(project, "jar", "slimjar", minimizedJar);
 
             logStatistics(report.getStatistics());
 

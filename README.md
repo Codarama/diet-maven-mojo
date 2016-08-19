@@ -14,7 +14,7 @@ To include the plugin as a part of your build you would need to only add this to
 		<plugin>
 			<groupId>org.codarama.diet</groupId>
 			<artifactId>diet-maven-mojo</artifactId>
-			<version>1.0.0</version>
+			<version>0.0.1</version>
 		</plugin>
 	</plugins>
 </build>
