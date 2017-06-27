@@ -1,5 +1,6 @@
 package org.codarama.diet;
 
+import com.google.common.collect.Sets;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -17,11 +18,20 @@ import org.codarama.diet.api.Minimizer;
 import org.codarama.diet.api.reporting.MinimizationReport;
 import org.codarama.diet.model.ClassName;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.io.File;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 
 /**
  * <p>
@@ -106,24 +116,28 @@ public class MavenMinimizerMojoTest {
 		MavenMinimizerMojo mojo = new MavenMinimizerMojo();
 
 		// somebody set us up the mock
-		Minimizer mockMinimizer = mock(Minimizer.class);
+		IndexedMinimizer mockMinimizer = mock(IndexedMinimizer.class);
 
 		Whitebox.setInternalState(mojo, "sources", SOURCE_DIRECTORY);
-		Whitebox.setInternalState(mojo, "libs", LIBS_DIRECTORY);
+		Whitebox.setInternalState(mojo, "pathToLocalRepo", LIBS_DIRECTORY);
 		Whitebox.setInternalState(mojo, "forceInclude", new String[] { CLASS_1 });
 		Whitebox.setInternalState(mojo, "target", TARGET_DIRECTORY);
 		Whitebox.setInternalState(mojo, "log", mock(Log.class));
+
+		Whitebox.setInternalState(mockMinimizer, "libraryLocations", Sets.newHashSet(LIBS_DIRECTORY));
+		Whitebox.setInternalState(mockMinimizer, "forceIncludeClasses", Sets.newHashSet(CLASS_1));
+		Whitebox.setInternalState(mockMinimizer, "outJar", new File(TARGET_DIRECTORY));
 
 		ArgumentCaptor<String> sources = ArgumentCaptor.forClass(String.class);
 		ArgumentCaptor<String> libs = ArgumentCaptor.forClass(String.class);
 		ArgumentCaptor<String> target = ArgumentCaptor.forClass(String.class);
 		ArgumentCaptor<ClassName> forceInclude = ArgumentCaptor.forClass(ClassName.class);
 
-		when(IndexedMinimizer.sources(sources.capture())).thenReturn(mockMinimizer);
-		when(mockMinimizer.libs(libs.capture())).thenReturn(mockMinimizer);
-		when(mockMinimizer.output(target.capture())).thenReturn(mockMinimizer);
-		when(mockMinimizer.forceInclude(forceInclude.capture())).thenReturn(mockMinimizer);
-		when(mockMinimizer.minimize()).thenReturn(mock(MinimizationReport.class));
+//		when(IndexedMinimizer.sources(sources.capture())).thenReturn(mockMinimizer);
+//		when(mockMinimizer.libs(libs.capture())).thenReturn(mockMinimizer);
+//		when(mockMinimizer.output(target.capture())).thenReturn(mockMinimizer);
+//		when(mockMinimizer.forceInclude(forceInclude.capture())).thenReturn(mockMinimizer);
+//		when(mockMinimizer.packageArtifact()).thenReturn(mock(MinimizationReport.class));
 
 		// execute for great justice
 		mojo.execute();

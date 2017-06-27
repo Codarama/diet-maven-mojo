@@ -2,18 +2,16 @@ package org.codarama.diet;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.maven.ProjectDependenciesResolver;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.execution.MavenSession;
@@ -37,14 +35,24 @@ import org.codarama.diet.api.reporting.MinimizationStatistics;
 import org.codarama.diet.api.reporting.listener.EventListener;
 import org.codarama.diet.event.model.ComponentEvent;
 import org.codarama.diet.model.ClassName;
+import org.codarama.diet.packaging.ArtifactPackager;
+import org.codarama.diet.packaging.JarArtifactPackager;
+import org.codarama.diet.packaging.WarArtifactPackager;
+import org.codarama.diet.util.Tokenizer;
 
 /**
  * <p>
- * This implementation of the {@link AbstractMojo} can be used to minimize the dependencies of a Maven project.
+ * This implementation of the {@link AbstractMojo} can be used to packageArtifact the dependencies of a Maven project.
  * </p>
  */
 @Mojo(name = "putondiet", defaultPhase = LifecyclePhase.PACKAGE)
 public class MavenMinimizerMojo extends AbstractMojo {
+
+    // we could probably inject these from somewhere
+    private static final ImmutableMap<String, ? extends ArtifactPackager> PACKAGERS = ImmutableMap.of(
+            "war", new WarArtifactPackager(),
+            "jar", new JarArtifactPackager()
+    );
 
     private static final String LOG_PATTERN = "%d [%p|%c|%C{1}] %m%n";
     private static final String CODARAMA_ROOT_PACKAGE = "org.codarama";
@@ -75,7 +83,7 @@ public class MavenMinimizerMojo extends AbstractMojo {
 
     /**
      * <p>
-     * Calls the Facade library in order to minimize the project's dependencies
+     * Calls the Diet library in order to packageArtifact the project's dependencies
      * </p>
      * <p>
      * The method would first attempt to configure the Diet's {@link Minimizer}
@@ -103,20 +111,31 @@ public class MavenMinimizerMojo extends AbstractMojo {
             // ... then attempt to output the minimized dependency JAR file
             final MinimizationReport report = minimizer.minimize();
 
-            // ... finally inject the newly minimized dependency in the package
-            // DISABLED for this release
-            // final File minimizedJar = new File(report.getJar().getName());
-            // projectHelper.attachArtifact(project, "jar", "slimjar", minimizedJar);
-
             logStatistics(report.getStatistics());
 
-            getLog().info("The minimized jar is at: " + report.getJar().getName());
+            // repackage artifact (remove all classes, add minimized classes only)
+            // we should support Jar and War packaging
+            final File currentArtifact = project.getArtifact().getFile();
+
+            final String artifactExtension = Tokenizer.delimiter(".").tokenize(currentArtifact.getName()).lastToken();
+            getLog().info("artifactExtension: " + artifactExtension);
+
+            final ArtifactPackager packager = PACKAGERS.get(artifactExtension);
+            if (packager == null) {
+                throw new IllegalStateException("No artifact packager found for extension: " + artifactExtension);
+            }
+            final File minimizedArtifact = packager.packageArtifact(project.getArtifact(), report.getJar());
+
+            project.getArtifact().setFile(minimizedArtifact);
+            projectHelper.attachArtifact(project, "jar", "slimjar", minimizedArtifact);
+
+            getLog().info("Minimized packaged artifact at: " + minimizedArtifact.getAbsolutePath());
         } catch (IOException e) {
-            getLog().error("Minimize not successful!", e);
+            getLog().error("Minimization not successful!", e);
             throw new MojoExecutionException(MavenMinimizerMojo.class, "Unable to minimize dependencies",
                     "An IO error spooked me out : " + e.getMessage());
         } catch (IllegalArgumentException e) {
-            getLog().error("Minimize not successful!", e);
+            getLog().error("Minimization not successful!", e);
             throw new MojoExecutionException("Unable to minimize dependencies, configuration spooked me out : "
                     + e.getMessage(), e);
 

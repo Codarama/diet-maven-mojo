@@ -97,6 +97,12 @@
 			<version>19.0</version>
 		</dependency>
 		<dependency>
+			<groupId>org.zeroturnaround</groupId>
+			<artifactId>zt-zip</artifactId>
+			<version>1.11</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>
